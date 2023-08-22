@@ -16,21 +16,21 @@ jobs:
       - name: Mock Deployment Step
         run: echo "Deployment successful!"
 
+      # Create a new deployment
       - name: Create Deployment
         uses: octokit/request-action@v2.x
         with:
-          route: POST /repos/:repository/deployments
-          repository: ${{ github.repository }}
+          route: POST /repos/${{ github.repository }}/deployments
           ref: ${{ github.sha }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DEMO_REPO_TOKEN }} 
 
+      # Mark the deployment as successful
       - name: Mark Deployment as Successful
         uses: octokit/request-action@v2.x
         with:
-          route: POST /repos/:repository/deployments/:deployment_id/statuses
-          repository: ${{ github.repository }}
-          deployment_id: ${{ fromJson(steps.create-deployment.outputs.data).id }}
+          route: POST /repos/${{ github.repository }}/deployments/${{ fromJson(steps.create-deployment.outputs.data).id }}/statuses
           state: success
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DEMO_REPO_TOKEN }}
+
