@@ -1,4 +1,4 @@
-name: Show Successful Deploy
+name: Mock Deployment and Trigger Test
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -16,16 +16,16 @@ jobs:
       - name: Mock Deployment Step
         run: echo "Deployment successful!"
 
-      # Create a new deployment
       - name: Create Deployment
         uses: octokit/request-action@v2.x
+        id: create-deployment
         with:
           route: POST /repos/${{ github.repository }}/deployments
           ref: ${{ github.sha }}
+          required_contexts: '[]'
         env:
-          GITHUB_TOKEN: ${{ secrets.DEMO_REPO_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.DEMO_REPO_TOKEN }}
 
-      # Mark the deployment as successful
       - name: Mark Deployment as Successful
         uses: octokit/request-action@v2.x
         with:
@@ -34,3 +34,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.DEMO_REPO_TOKEN }}
 
+      - name: Trigger Test Repo
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.DEMO_REPO_TOKEN }}
+          repository: myblueprint-spaces/qa-selenium
+          event-type: trigger-tests
